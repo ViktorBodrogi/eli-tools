@@ -1,0 +1,331 @@
+@! This file is Copyright of the author, (c) Viktor Bodrogi, Jul 2016.
+@p maximum_input_line_length = infinity
+
+@t title titlefont centre "M4 FunnelWeb generation"
+@t title smalltitlefont centre "(c) Viktor Bodrogi, Jul 2016"
+@t title normalfont centre "Draft"
+
+@A@<M4 FunnelWeb generation@>
+
+@B@<Files@>
+M4 FunnelWeb libraries, for different CTR chars:
+@N@<fw.m4@>@{@<FW defs@>@(@@@)@}
+@N@<fw~.m4@>@{@@=~@+@<FW defs@>@(~@)@}
+@N@<fw@@.m4@>@{@<FW defs@>@(@@@)@}
+
+This one is generic, ctrl char can be redefined in middle of operation.
+@N@<fwx.m4@>@{@<FW any@>@(@@@)@}
+
+@B@<Builtin functions@>
+
+These are the macros for generating m4.
+Doc: <a href="https://www.gnu.org/software/m4/manual/m4.html">M4 info manual</a>.
+
+@C@<Prefix and helpers@>
+
+Prefix @{m4_@}:
+@$@#M@Z@M@{m4_@}
+
+Default left and right quotes:
+@$@#L@Z@M@{`@}
+@$@#R@Z@M@{'@}
+
+M4 dnl (Delete New Line):
+@$@<m4_dnl@>@Z@M@{@#Mdnl@}
+@$@#D@Z@M@{@#Mdnl@}
+
+FW comment:
+@$@#C@Z@M@{@@!@}
+@!$@#C@(@1@)@Z@M@{@#c @1@}
+
+@C@<Define macros@>
+
+@D
+@$@<m4_define@>@(@2@)@Z@M@{@#Mdefine(@1,@2)@#D@}
+@$@<m4_define'@>@(@2@)@Z@M@{@#Mdefine(`@1',`@2')@#D@}
+@$@<m4_define''@>@(@2@)@Z@M@{@#Mdefine(``@1'',``@2'')@#D@}
+
+@E
+The number of actual arguments in a macro call is denoted by @{$#@} in the expansion text.
+Composite: nargs (...)
+@$@<m4_nargs@>@Z@M@{$#@}
+The notation @{$*@} can be used in the expansion text to denote all the actual arguments, unquoted, with commas in between.
+@$@<m4_args@>@Z@M@{$*@}
+Often each argument should be quoted, and the notation @{$@@@} handles that. It is just like @{$*@}, except that it quotes each argument.
+@$@<m4_args'@>@Z@M@{$@@@}
+
+@E
+@$@<m4_def@>@(@2@)@Z@M@{@#Mdefine(`@1',`@2')@#D@}
+@$@<fw_def@>@(@2@)@Z@M@{@#Mdefine(`_FW_@1_',`@2')@#D@}
+
+@D
+A macro definition can be removed with undefine:
+Builtin: undefine (name...)
+@$@<m4_undefine@>@(@1@)@Z@M@{@#Mundefine(@1)@#D@}
+
+@D
+Expands to the quoted definition of each name:
+Builtin: defn (name...).
+@$@<m4_defn@>@(@1@)@Z@M@{@#Mdefn(@1)@#D@}
+
+@D
+It is possible to redefine a macro temporarily, reverting to the previous definition at a later time.
+This is done with the builtins pushdef and popdef:
+Builtin: pushdef (name, [expansion])
+@$@<m4_pushdef@>@(@1@)@Z@M@{@#Mpushdef(@1)@#D@}
+@D
+Builtin: popdef (name...)
+@$@<m4_popdef@>@(@1@)@Z@M@{@#Mpopdef(@1)@#D@}
+
+@D
+Any macro can be called indirectly with indir:
+Builtin: indir (name, [args...])
+@$@<m4_indir@>@(@1@)@Z@M@{@#Mindir(@1)@#D@}
+@D
+Builtin macros can be called indirectly with builtin:
+Builtin: builtin (name, [args...])
+@$@<m4_builtin@>@(@1@)@Z@M@{@#Mbuiltin(@1)@#D@}
+
+@C@<Conditionals and loops@>
+
+@D
+There are two different builtin conditionals in m4. The first is ifdef:
+Builtin: ifdef (name, string-1, [string-2])
+@$@<m4_ifdef@>@(@3@)@Z@M@{@#Mifdef(@1,@2,@3)@}
+@$@<m4_ifdef'@>@(@3@)@Z@M@{@#Mifdef(`@1',`@2',`@3')@}
+
+@D
+The other conditional, ifelse, is much more powerful.
+It can be used as a way to introduce a long comment,
+as an if-else construct,
+or as a multibranch, depending on the number of arguments supplied:
+
+Builtin: ifelse (comment)
+Builtin: ifelse (string-1, string-2, equal, [not-equal])
+Builtin: ifelse (string-1, string-2, equal-1, string-3, string-4, equal-2, ..., [not-equal])
+@$@<m4_ifelse@>@(@1@)@Z@M@{@#Mifelse(@1)@}
+@$@<m4_ifelse=@>@(@3@)@Z@M@{@#Mifelse(@1,@2,@3)@}
+@!$@<m4_ifelse4@>@(@4@)@Z@M@{@#Mifelse(@1,@2,@3,@4)@}
+@!$@<m4_ifelse6@>@(@6@)@Z@M@{@#Mifelse(@1,@2,@3,@4,@5,@6)@}
+@!$@<m4_ifelse7@>@(@7@)@Z@M@{@#Mifelse(@1,@2,@3,@4,@5,@6,@7)@}
+
+@D
+There is no direct support for loops in m4, but macros can be recursive. There is no limit on the number of recursion levels, other than those enforced by your hardware and operating system.
+Loops can be programmed using recursion and the conditionals described previously.
+There is a builtin macro, shift, which can, among other things, be used for iterating through the actual arguments to a macro:
+
+Builtin: shift (arg1, ...)
+Takes any number of arguments, and expands to all its arguments except arg1, separated by commas, with each argument quoted.
+@$@<m4_shift@>@(@1@)@Z@M@{@#Mshift(@1)@}
+
+@D
+Composite: reverse (...)
+Takes any number of arguments, and reverses their order.
+@$@<m4_reverse@>@(@1@)@Z@M@{@#Mreverse(@1)@}
+@$@<Define m4_reverse@>@{@-
+@<m4_def@>@(@#Mreverse@,@#Mifelse(`$#',`0',,`$#',`1',``$1'',`@#Mreverse(@#Mshift($@@)),`$1'')@)@}
+
+@D
+Composite: cond (test-1, string-1, equal-1, [test-2])
+Similar to ifelse, where an equal comparison between the first two strings results in the third, otherwise the first three arguments are discarded and the process repeats. The difference is that each test-<n> is expanded only when it is encountered. This means that every third argument to cond is normally given one more level of quoting than the corresponding argument to ifelse.
+@$@<m4_cond@>@(@1@)@Z@M@{@#Mcond(@1)@}
+@$@<Define m4_cond@>@{@-
+@<m4_def@>@(@#Mcond@,@#Mifelse(`$#',`1',`$1',
+    `@#Mifelse($1, `$2', `$3',
+        `$0(@#Mshift(@#Mshift(@#Mshift($@@))))')')@)@}
+
+@D
+Another common task that requires iteration is joining a list of arguments into a single string.
+
+Composite: join ([separator]
+Composite: joinall ([separator])
+Generate a single-quoted string, consisting of each arg separated by separator. While joinall always outputs a separator between arguments, join avoids the separator for an empty arg.
+@$@<m4_join@>@(@1@)@Z@M@{@#Mjoin(@1)@}
+@$@<Define m4_join@>@{@-
+# @#Mjoin(sep, args) - join each non-empty ARG into a single
+# string, with each element separated by SEP
+@#Mdefine(`@#Mjoin',
+`@#Mifelse(`$#', `2', ``$2'',
+  `@#Mifelse(`$2', `', `', ``$2'_')$0(`$1', @#Mshift(@#Mshift($@@)))')')
+@#Mdefine(`_@#Mjoin',
+`@#Mifelse(`$#$2', `2', `',
+  `@#Mifelse(`$2', `', `', ``$1$2'')$0(`$1', @#Mshift(@#Mshift($@@)))')')
+# @#Mjoinall(sep, args) - join each ARG, including empty ones,
+# into a single string, with each element separated by SEP
+@#Mdefine(`@#Mjoinall', ``$2'_$0(`$1', @#Mshift($@@))')
+@#Mdefine(`_@#Mjoinall',
+`@#Mifelse(`$#', `2', `', ``$1$3'$0(`$1', @#Mshift(shift($@@)))')')@}
+
+@D
+Sometimes, a recursive algorithm requires adding quotes to each element, or treating multiple arguments as a single element:
+
+Composite: quote (...)
+Composite: dquote (...)
+Composite: dquote_elt (...)
+Takes any number of arguments, and adds quoting. With quote, only one level of quoting is added, effectively removing whitespace after commas and turning multiple arguments into a single string. With dquote, two levels of quoting are added, one around each element, and one around the list. And with dquote_elt, two levels of quoting are added around each element.
+
+@$@<m4_quote@>@(@1@)@Z@M@{@#Mjoin(@1)@}
+@$@<Define m4_quote@>@{@-
+# @#Mquote(args) - convert args to single-quoted string
+@#Mdefine(`@#Mquote', `@#Mifelse(`$#', `0', `', ``$*'')')
+# @#Mdquote(args) - convert args to quoted list of quoted strings
+@#Mdefine(`@#Mdquote', ``$@@'')
+# @#Mdquote_elt(args) - convert args to list of double-quoted strings
+@#Mdefine(`@#Mdquote_elt', `@#Mifelse(`$#', `0', `', `$#', `1', ```$1''',
+    ```$1'',$0(@#Mshift($@@))')')@}
+
+
+
+
+@B
+@$@<M4 library@>@{@#D # M4 Library
+@#Mdivert(`-1')
+@<Define m4_reverse@>
+@<Define m4_cond@>
+@<Define m4_join@>
+@<Define m4_quote@>
+@#Mdivert`'@#D@}
+
+
+@B@<FW defs@>
+@C
+@$@<FW defs@>@(@1@)@M@{@-
+@<FW common@>
+@<FW ctrl char@>@(@1@)
+@<FW processing@>@(@1@)
+@}
+
+@C
+@$@<FW any@>@(@1@)@{@-
+@<FW common@>
+@<FW any char@>@(@1@)
+@<FW processing@>@(_FC_()@)
+@}
+
+@B
+@$@<FW common@>@M@{@-
+@<m4_def@>@(_DO_NOT_EDIT_@,@#C GENERATED FILE, DO NOT EDIT!@)
+@<FW document@>
+@<FW instructions@>
+@<FW default header@>
+@<M4 library@>
+@<FW file end@>@}
+
+@C
+@$@<FW header@>@{@#D # File begins here
+@<m4_ifdef'@>@(_HEADER_@,_HEADER_@,_FW_File_Header_(`__TITLE__')@)@}
+
+@D
+@$@<FW document@>@{@#D
+@#Mdefine(`__TITLE__',      @<m4_ifdef'@>@(_TITLE_@,_TITLE_@,`Hello, world!'@))@#D
+@#Mdefine(`__AUTHOR__',     @<m4_ifdef'@>@(_AUTHOR_@,_AUTHOR_@,`Viktor Bodrogi <viktor@@axonnet.hu>'@))@#D
+@#Mdefine(`__COPYRIGHT__',  `__AUTHOR__, `Jul 2016'')@#D
+@#Mdefine(`__VERSION__',    ``Draft, version 0.1.1'')@#D@}
+
+@D
+@$@<FW instructions@>@{@#D
+@#Mdefine(`_FW_TITLE_',     `_FW_(t) `title titlefont centre "$1"'')@#D
+@#Mdefine(`_FW_CHAPTER_',   `_FW_(t) `title smalltitlefont centre "$1"'')@#D
+@#Mdefine(`_FW_MAIN_',      `_FW_(t) `title smalltitlefont left "$1"'')@#D
+@#Mdefine(`_FW_CENTRE_',    `_FW_(t) `title normalfont centre "$1"'')@#D
+@#Mdefine(`_FW_TOC_',       `_FW_(t) `table_of_contents'')@#D
+@#Mdefine(`_FW_COPYRIGHT_', `_FW_(!) `Copyright of '__COPYRIGHT__.')@#D
+@#Mdefine(`_FW_TYPESETTER_',`_FW_(p) `typesetter ='')@#D
+@#Mdefine(`_FW_MAX_LENGTH_',`_FW_(p) `maximum_input_line_length ='')@#D
+@#Mdefine(`_FW_HTML_',      `_FW_TYPESETTER_ html')@#D
+@#Mdefine(`_FW_INFINITY_',  `_FW_MAX_LENGTH_ infinity')@#D@}
+
+@D
+@$@<FW default header@>@{@#D
+@#Mdefine(`_FW_File_Header_',`@#D
+_FW_COPYRIGHT_
+_DO_NOT_EDIT_
+_FW_INFINITY_
+_FW_HTML_
+
+_FW_TITLE_($1)
+_FW_CHAPTER_(__COPYRIGHT__)
+_FW_CENTRE_(__VERSION__)
+_FW_TOC_
+
+__A($1)
+@#Mshift($@@)')@#D@}
+
+@C
+@$@<FW file end@>@{@#D
+@#Mdefine(`__END___')@#D@}
+@!#Mdefine(`__END___',`__B(Helpers)')@#D@}
+@!_FW_DEF_(d)_ZM_`'_FWB_(m4`'_dnl)')@#D@}
+@!$@#D@Z@M@{@#Mdnl@}
+
+@C
+@$@<FW ctrl char@>@(@1@)@{@#D
+@<m4_def@>@(_FC_@,@1@)
+@<m4_def@>@(_FW_@,@1$1@)
+@<m4_def@>@(_FWX_@,@1$@)
+@<m4_def@>@(_FWN_@,@1<$1@1>@)
+@<m4_def@>@(_FWP_@,@1($1@1)@)
+@<m4_def@>@(_FWB_@,@1{$1@1}@)
+@<m4_def@>@(_FWY_@,@1$1@1<$2@1>@)@}
+
+@$@<FW any char@>@(@1@)@{@#D
+@#D # Define _FC_ to ctrl char
+@<m4_def@>@(_FC_@,@1@)
+@<m4_def@>@(_FW_@,_FC_()$1@)
+@<m4_def@>@(_FWX_@,_FW_($)@)
+@<m4_def@>@(_FWN_@,_FW_(<)'`$1'`_FW_(>)@)
+@<m4_def@>@(_FWB_@,_FW_({)'`$@@'`_FW_(})@)
+@<m4_def@>@(_FWY_@,_FW_($1)_FWN_($2)@)@}
+
+@C
+@$@<FW processing@>@(@1@)@M@{@-
+@<FW title@>@(@1@)
+@<FW file@>@(@1@)
+@<FW define@>@(@1@)
+@<FW header@>@}
+
+@D
+@$@<FW title@>@(@1@)@{@#D
+@<fw title@>@(@1@,A@)
+@<fw title@>@(@1@,B@)
+@<fw title@>@(@1@,C@)
+@<fw title@>@(@1@,D@)
+@<fw title@>@(@1@,E@)@}
+@$@<fw title@>@(@2@)@M@{@-
+@<m4_def@>@(__@2__@,@1@2@)
+@<m4_def@>@(__@2@,@1@2@1<$@@@1>@)@}
+
+@D
+@$@<FW file@>@(@1@)@{@#D
+@#D # File
+@<fw_def@>@(FILE@,_FWY_(N,$1)@)
+@<fw_def@>@(SPEC@,_FWY_(O,$1)@)@}
+
+@D
+@$@<FW define@>@(@1@)@{@#D
+@#D # Define
+@<fw_def@>@(DEF@,@1$_FWN_($1)@)
+@<fw_def@>@(Def@,_FW_DEF_($1)@1{$2@1}@)
+@<fw_def@>@(Define@,_FW_DEF_($1)==@1{$2@1}@)
+@#D # Macro arguments
+@<m4_def@>@(_Z_@,@1Z@)
+@<m4_def@>@(_M_@,@1M@)
+@<m4_def@>@(_ZM_@,@1Z@1M@)
+@<FW create_arg_defs@>@(@1@)@}
+
+@$@<FW create_arg_defs@>@(@1@)@{@#D
+@#Mdefine(`___create_arg_defs___',`@#D
+@<m4_def@>@(_$1_@,_FWP_(`@1'$1)@)
+@<m4_def@>@(_$1Z_@,_$1_()_Z_()@)
+@<m4_def@>@(_$1M_@,_$1_()_M_()@)
+@<m4_def@>@(_$1ZM_@,_$1_()_ZM_()@)
+')@#D
+___create_arg_defs___(1)@#D
+___create_arg_defs___(2)@#D
+___create_arg_defs___(3)@#D
+___create_arg_defs___(4)@#D
+___create_arg_defs___(5)@#D
+___create_arg_defs___(6)@#D
+___create_arg_defs___(7)@#D
+___create_arg_defs___(8)@#D
+___create_arg_defs___(9)@#D@}
