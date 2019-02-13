@@ -1,0 +1,171 @@
+@! This file is Copyright of the author, (c) Viktor Bodrogi, Jul 2016.
+@p maximum_input_line_length = infinity
+
+@t title titlefont centre "M4 FunnelWeb generation"
+@t title smalltitlefont centre "(c) Viktor Bodrogi, Jul 2016"
+@t title normalfont centre "Draft"
+
+@A@<M4 FunnelWeb generation@>
+
+@B@<Files@>
+M4 FunnelWeb libraries, for different CTR chars:
+@N@<fw.m4@>@{@<FW defs@>@(@@@)@}
+@N@<fw~.m4@>@{@@=~@+@<FW defs@>@(~@)@}
+@N@<fw@@.m4@>@{@<FW defs@>@(@@@)@}
+
+This one is generic, ctrl char can be redefined in middle of operation.
+@N@<fwx.m4@>@{@<FW any@>@(@@@)@}
+
+@B@<FW defs@>
+
+FW comment:
+@$@#C@Z@M@{@@!@}
+@!$@#C@(@1@)@Z@M@{@#c @1@}
+
+@C
+This prefixes the definition with @{_FW@} by default.
+@$@<fw_def@>@(@2@)@Z@M@{@#Mdefine(`@#F@1_',`@2')@#D@}
+
+FW prefix:
+@$@#F@Z@M@{_FW@}
+
+@C
+@$@<FW defs@>@(@1@)@M@{@-
+@<FW common@>
+@<FW ctrl char@>@(@1@)
+@<FW processing@>@(@1@)
+@}
+
+@C
+@$@<FW any@>@(@1@)@{@-
+@<FW common@>
+@<FW any char@>@(@1@)
+@<FW processing@>@(@#FC_()@)
+@}
+
+@B
+@$@<FW common@>@M@{@-
+@<m4_def@>@(@#FDO_NOT_EDIT_@,@#C GENERATED FILE, DO NOT EDIT!@)
+@<FW document@>
+@<FW instructions@>
+@<FW default header@>
+@<M4 library@>
+@<FW file end@>@}
+
+@C
+@$@<FW header@>@{@#D # File begins here
+@<m4_ifdef'@>@(_HEADER_@,_HEADER_@,@#F_File_Header_(`__TITLE__')@)@}
+
+@D
+@$@<FW document@>@{@#D
+@#Mdefine(`__TITLE__',      @<m4_ifdef'@>@(_TITLE_@,_TITLE_@,`Hello, world!'@))@#D
+@#Mdefine(`__AUTHOR__',     @<m4_ifdef'@>@(_AUTHOR_@,_AUTHOR_@,`Viktor Bodrogi <viktor@@axonnet.hu>'@))@#D
+@#Mdefine(`__COPYRIGHT__',  `__AUTHOR__, `Jul 2016'')@#D
+@#Mdefine(`__VERSION__',    ``Draft, version 0.1.1'')@#D@}
+
+@D
+@$@<FW instructions@>@{@#D
+@#Mdefine(`@#F_TITLE_',     `@#F(t) `title titlefont centre "$1"'')@#D
+@#Mdefine(`@#F_CHAPTER_',   `@#F(t) `title smalltitlefont centre "$1"'')@#D
+@#Mdefine(`@#F_MAIN_',      `@#F(t) `title smalltitlefont left "$1"'')@#D
+@#Mdefine(`@#F_CENTRE_',    `@#F(t) `title normalfont centre "$1"'')@#D
+@#Mdefine(`@#F_TOC_',       `@#F(t) `table_of_contents'')@#D
+@#Mdefine(`@#F_COPYRIGHT_', `@#F(!) `Copyright of '__COPYRIGHT__.')@#D
+@#Mdefine(`@#F_TYPESETTER_',`@#F(p) `typesetter ='')@#D
+@#Mdefine(`@#F_MAX_LENGTH_',`@#F(p) `maximum_input_line_length ='')@#D
+@#Mdefine(`@#F_HTML_',      `@#FTYPESETTER_ html')@#D
+@#Mdefine(`@#F_INFINITY_',  `@#FMAX_LENGTH_ infinity')@#D@}
+
+@D
+@$@<FW default header@>@{@#D
+@#Mdefine(`@#F_File_Header_',`@#D
+@#F_COPYRIGHT_
+@#F_DO_NOT_EDIT_
+@#F_INFINITY_
+@#F_HTML_
+
+@#F_TITLE_($1)
+@#F_CHAPTER_(__COPYRIGHT__)
+@#F_CENTRE_(__VERSION__)
+@#F_TOC_
+
+__A($1)
+@#Mshift($@@)')@#D@}
+
+@C
+@$@<FW file end@>@{@#D
+@#Mdefine(`@<FW END@>',`@<FW EOF@>')@#D@}
+@$@<FW END@>==@{__END__@}
+@$@<FW EOF@>+=@{@}
+
+@C
+@$@<FW ctrl char@>@(@1@)@{@#D
+@<m4_def@>@(@#F@,@1$1@)
+@<m4_def@>@(@#FC_@,@1@)
+@<m4_def@>@(@#FX_@,@1$@)
+@<m4_def@>@(@#FN_@,@1<$1@1>@)
+@<m4_def@>@(@#FP_@,@1($1@1)@)
+@<m4_def@>@(@#FB_@,@1{$1@1}@)
+@<m4_def@>@(@#FY_@,@1$1@1<$2@1>@)@}
+
+@$@<FW any char@>@(@1@)@{@#D
+@#D # Define _FC_ to ctrl char
+@<m4_def@>@(@#FC_@,@1@)
+@<m4_def@>@(@#F@,@#FC_()$1@)
+@<m4_def@>@(@#FX_@,@#F($)@)
+@<m4_def@>@(@#FN_@,@#F(<)'`$1'`@#F(>)@)
+@<m4_def@>@(@#FB_@,@#F({)'`$@@'`@#F(})@)
+@<m4_def@>@(@#FY_@,@#F($1)@#FN_($2)@)@}
+
+@C
+@$@<FW processing@>@(@1@)@M@{@-
+@<FW title@>@(@1@)
+@<FW file@>@(@1@)
+@<FW define@>@(@1@)
+@<FW header@>@}
+
+@D
+@$@<FW title@>@(@1@)@{@#D
+@<fw title@>@(@1@,A@)
+@<fw title@>@(@1@,B@)
+@<fw title@>@(@1@,C@)
+@<fw title@>@(@1@,D@)
+@<fw title@>@(@1@,E@)@}
+@$@<fw title@>@(@2@)@M@{@-
+@<m4_def@>@(__@2__@,@1@2@)
+@<m4_def@>@(__@2@,@1@2@1<$@@@1>@)@}
+
+@D
+@$@<FW file@>@(@1@)@{@#D
+@#D # File
+@<fw_def@>@(FILE@,@#FY_(N,$1)@)
+@<fw_def@>@(SPEC@,@#FY_(O,$1)@)@}
+
+@D
+@$@<FW define@>@(@1@)@{@#D
+@#D # Define
+@<fw_def@>@(DEF@,@1$@#FN_($1)@)
+@<fw_def@>@(Def@,@#FDEF_($1)@1{$2@1}@)
+@<fw_def@>@(Define@,@#FDEF_($1)==@1{$2@1}@)
+@#D # Macro arguments
+@<m4_def@>@(_Z_@,@1Z@)
+@<m4_def@>@(_M_@,@1M@)
+@<m4_def@>@(_ZM_@,@1Z@1M@)
+@<FW create_arg_defs@>@(@1@)@}
+
+@$@<FW create_arg_defs@>@(@1@)@{@#D
+@#Mdefine(`___create_arg_defs___',`@#D
+@<m4_def@>@(_$1_@,@#FP_(`@1'$1)@)
+@<m4_def@>@(_$1Z_@,_$1_()_Z_()@)
+@<m4_def@>@(_$1M_@,_$1_()_M_()@)
+@<m4_def@>@(_$1ZM_@,_$1_()_ZM_()@)
+')@#D
+___create_arg_defs___(1)@#D
+___create_arg_defs___(2)@#D
+___create_arg_defs___(3)@#D
+___create_arg_defs___(4)@#D
+___create_arg_defs___(5)@#D
+___create_arg_defs___(6)@#D
+___create_arg_defs___(7)@#D
+___create_arg_defs___(8)@#D
+___create_arg_defs___(9)@#D@}
