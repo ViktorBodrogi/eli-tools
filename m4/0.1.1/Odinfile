@@ -1,0 +1,49 @@
+
+%all !== <<EOF
+    %m4.all
+EOF
+
+%cln !== <<EOF
+    %m4.cln
+EOF
+
+%re !== <<EOF
+    %cln
+    %all
+EOF
+
+#############################################################################
+
+%m4.all !== <<EOF
+    m4.html
+    %m4.out
+EOF
+
+%m4.cln !== <<EOF
+    !rm -fr m4.fw.fwGen m4.html
+EOF
+
+%m4     == m4.fw :fwGen
+%m4.out !== <<EOF
+    !rm -fr m4.fw.fwGen
+    %m4 > .
+EOF
+
+m4.html     == m4.fw :fwHtml
+m4_dg.fwi   == %dg.gnrc +instance=M4 +referto=m4 :inst :cat
+%dg.gnrc    == ../pkg/dg.gnrc
+
+#############################################################################
+
+%m4.copy !== <<EOF
+    !cp -auv m4.fw.fwGen/* .
+    !chmod +x m4.sh
+EOF
+
+#############################################################################
+
+%m4.installpkg !== <<EOF
+    %m4.all
+    %m4.copy
+    . +d_dest=(/Users/Viktor/Eli) :installpkg
+EOF
