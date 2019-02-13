@@ -1,0 +1,38 @@
+
+%main.dir   == ../%main.dir
+%pkg.dir    == ../%pkg.dir
+
+%dg.gnrc    == %pkg.dir/pkg/dg.gnrc
+
+#############################################################################
+
+
+%all !== <<
+    %m4.html            # generating doc
+    %m4.gen             # generating full fwGen
+
+%install !== <<
+    %all
+
+%clean !== <<
+    !rm -fr m4.fw.fwGen # m4.html
+
+%re !== <<
+    %clean
+    %all
+
+#############################################################################
+
+%gen.dir == ..
+
+%m4.gen    !== <<       # generating fwGen
+    !rm -fr m4.fw.fwGen # remove old files
+    %m4 > %gen.dir      # copy files to m4.fw.fwGen
+
+#############################################################################
+
+%m4         == m4.fw :fwGen
+%m4.html    == m4.fw :fwHtml
+#%m4.fw      == m4.fw
+%m4_dg.fwi  == %m4.inst :cat
+%m4.inst    == %dg.gnrc +instance=M4 +referto=m4 :inst

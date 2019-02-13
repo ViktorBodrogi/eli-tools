@@ -1,0 +1,76 @@
+@! This file is Copyright of the author, Viktor Bodrogi, 2016.
+@p maximum_input_line_length = infinity
+@t title smalltitlefont centre "M4 Eli package"
+
+@! NEEDS dg.fwi
+
+@B@<M4 Eli package@>
+
+@C
+@$@<M4 DG version@>@{0.1.1@}
+@!$@<M4 DG@>@{@<DG.dg@>@}
+
+@D
+@$@<M4 Source Types@>+=@{
+*.m4    => :m4_in;
+*,fw    => :m4_fw;
+*.fw.m4 => :m4_fw;
+@}
+@$@<M4 pre@>+=@{case $file in *.m4);; *) file=$file.m4;; esac@+@}
+
+@D
+@$@<M4 Input Object Types@>+=@{
+:m4_in  'm4 input file' => :FILE;
+:m4_fw  'm4 coded fw' => :FILE;
+@}
+@!D
+@!$@<Intermediate Object Types@>+=@{
+@!:m4_out 'm4 output file'? => :FILE;
+@!}
+@D
+@$@<M4 Output Object Types@>+=@{
+:out.m4 'm4 pipe output'        => :PIPE;
+:gnc.m4 'm4 generic output'     => :GENERIC;
+:fw     'FunnelWeb output'?     => :FILE;
+@!:c      'C source code'?        => :FILE;
+@!:h      'C header file'?        => :FILE;
+@}
+
+@D
+@$@<M4 Parameter Types@>+=@{
+@!+define 'macro definition'? => :cat;
++home 'home directory for relative pathnames'? => :first;
++inc_sp 'name of a directory in an include search path'? => :ls;
+@<M4 ptype@>
+@}
+@$@<M4 params@>+=@{ (+inc_sp)@}
+@$@<M4 parms@>+=@{ODIN_inc_sp=$1;shift;@+@}
+
+@D
+@$@<M4 Tools@>+=@{
+@<M4 EXEC@>@(out.m4@,FILE@)
+@<M4 EXEC@>@(gnc.m4@,m4_in@)
+@<M4 EXEC@>@(fw@,m4_in@)
+@}
+
+@$@<M4 EXEC@>@(@2@)@M@{EXEC (m4.sh) @1 (:@2) (:@2 :dir)@@ @<M4 params@>
+@!    NEEDS (:@2 +home=(:@2 :dir) :lookup=:all_c_inc)
+    => (:@1);
+@}
+
+@$@<M4 flags@>+=@{flags="$flags -I $ODIN_dir"
+@<DG cat flag@>@(inc_sp@,-I@)
+@}
+
+@$@<DG cat flag@>@(@2@)@M@{@-
+if [ "$ODIN_@1" != "" ] ; then
+   for f in `cat $ODIN_@1`; do
+      flags="$flags @2 $f"; done; fi@}
+
+@D
+@!$@<M4 command@>@M@{m4@}
+@!$@<M4 out@>@M@{m4@}
+@$@<M4 pre@>+=@{
+@<M4 parms@>
+@+# flags
+@<M4 flags@>@}

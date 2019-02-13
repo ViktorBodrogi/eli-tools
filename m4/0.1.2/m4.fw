@@ -1,0 +1,33 @@
+@! This file is Copyright of the author, Viktor Bodrogi, 2016.
+@t title titlefont centre "M4 processing library"
+@p typesetter = html
+
+M4 processing helpers.
+Part of Eli packages.
+
+@t table_of_contents
+
+@A@<M4@>
+
+@i m4_doc.fwi
+@i m4_dg.fwi
+@i m4_pkg.fwi
+@i m4_opts.fwi
+@i m4_fw.fwi
+
+@!i m4_test.fwi
+
+@A@<Appendix@>
+@B@<Files@>
+@! already defined in m4_dg.fw
+@!N@<m4.dg@>@{@<M4.dg@>@}
+@!N@<m4.sh@>@{@<M4.sh@>@}
+@N@<version@>@{@<M4 DG version@>@}
+@B
+@N@<TODO.txt@>@{===== TODO =====
+  @<TODO@>
+@}
+
+@A@<Import@>
+Imported solutions.
+@! dg.fwi

@@ -1,0 +1,13 @@
+===== TODO =====
+  
+  * Cleanup toolchain
+  * Add standard libraries for filetypes
+  
+  * Short options are recognised too
+  * Preload/Postscript
+  * Standard preloading
+  * File types
+  
+  * How to use the generated m4.fw in our case?
+  * Cleanup toolchain
+  

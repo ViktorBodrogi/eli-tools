@@ -1,0 +1,14 @@
+===== TODO =====
+  
+  * Cleanup toolchain
+  * Add standard libraries for filetypes
+  * Short options are recognised too
+  * Standard preloading
+  * File types
+  
+  * How to use the generated m4.fw in our case?
+  * Cleanup toolchain
+  
+  * Use m4 itself to generate these entries
+    * or a .gnrc on top of options?
+  

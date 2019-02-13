@@ -1,0 +1,58 @@
+@! This file is Copyright of the author, Viktor Bodrogi, 2016.
+
+@B@<Abstract@>
+
+-> @{input.m4 +prefix :m4.out@}
+
+@C@<Discussion@>
+
+M4 is a simple but useful way to create and use macros
+for producing other source types.
+This makes it great as a preprocessor.
+
+The most easy way to do it under Eli:
+
+-> @{input.m4 +cmd=m4 +args='-P' :pipe.stdout@}
+
+But we want a derivation directly in Eli,
+defined by a package and a @{.dg@} file.
+So we can:
+
+-> @{input.m4 +prefix :m4.out@}
+
+Short options are recognised too.
+
+-> @{input.m4 +P :m4.out@}
+
+Also, we define libraries loaded before the input file,
+or a postprocessing script to run:
+
+-> @{input.m4 +before=before.m4 +after=after.m4 :m4.out@}
+
+For special file types we can preload standard libraries for that type.
+
+-> @{input,fw :fw@}
+
+# (This preloads the @{fw.m4@} file from the distribution package)
+
+All m4 files preloads the @{std.m4@} library, except @{+nostd@} flag given.
+
+File types we want to handle:
+@{*.m4@}
+@{*.fw.m4 *.fwi.m4@}
+@{*,fw *,fwi@}
+
+And these are possible also:
+@{fw.*.m4@}
+@{*.*.m4@}? (to automatically include type specific script);
+@{*,c *,h@}?;
+@{*,*@}? (may conflict with ,v?);
+
+@C
+@$@<TODO@>+=@{
+* Cleanup toolchain
+* Add standard libraries for filetypes
+* Short options are recognised too
+* Standard preloading
+* File types
+@}

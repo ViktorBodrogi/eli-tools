@@ -1,0 +1,288 @@
+@! This file is Copyright of the author, Viktor Bodrogi, 2016.
+@p maximum_input_line_length = infinity
+@t title smalltitlefont centre "M4 options"
+
+@B@<M4 options@>
+
+This defintion file stritctly adds @{M4 ptype@}, @{M4 params@}, @{M4 parms@}
+ and @{M4 flags@} entries.
+
+@C@<Operation modes@>
+
+Several options control the overall operation of m4:
+
+@D@<error, fatal@>
+@{-E
+--fatal-warnings@}
+
+Controls the effect of warnings. If unspecified, then execution continues and exit status is unaffected when a warning is printed. If specified exactly once, warnings become fatal; when one is issued, execution continues, but the exit status will be non-zero.
+If specified multiple times, then execution halts with non-zero status the first time a warning is issued. The introduction of behavior levels is new to m4 1.4.9; for behavior consistent with earlier versions, you should specify -E twice.
+
+@$@<M4 params@>+=@{ (+error)@}
+@$@<M4 ptype@>+=@{+error 'Error warnings'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(error@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(error@,-E@)@}
+
+@$@<M4 params@>+=@{ (+fatal)@}
+@$@<M4 ptype@>+=@{+fatal 'Fatal warnings'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(fatal@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(fatal@,-EE@)@}
+
+@D@<prefix@>
+@{-P
+--prefix-builtins@}
+
+Internally modify all builtin macro names so they all start with the prefix @{m4_@}. For example, using this option, one should write @{m4_define@} instead of @{define@}, and @{m4___file__@} instead of @{__file__@}. This option has no effect if -R is also specified.
+
+@$@<M4 params@>+=@{ (+prefix)@}
+@$@<M4 ptype@>+=@{+prefix 'Prefix builtins with m4_'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(prefix@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(prefix@,-P@)@}
+
+@$@<M4 parms@>+=@{@+@}
+
+@D@<quiet@>
+@{-Q
+--quiet
+--silent@}
+
+Suppress warnings, such as missing or superfluous arguments in macro calls, or treating the empty string as zero.
+
+@$@<M4 params@>+=@{ (+quiet)@}
+@$@<M4 ptype@>+=@{+quiet 'Suppress warnings'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(quiet@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(quiet@,-Q@)@}
+
+@D@<macro@>
+@{--warn-macro-sequence[=regexp]@}
+
+Issue a warning if the regular expression regexp has a non-empty match in any macro definition (either by define or pushdef). Empty matches are ignored; therefore, supplying the empty string as regexp disables any warning.
+If the optional regexp is not supplied, then the default regular expression is @{\$\({[^}]*}\|[0-9][0-9]+\)@} (a literal @{$@} followed by multiple digits or by an open brace), since these sequences will change semantics in the default operation of GNU m4 2.0 (due to a change in how more than 9 arguments in a macro definition will be handled, see Arguments).
+Providing an alternate regular expression can provide a useful reverse lookup feature of finding where a macro is defined to have a given definition.
+
+@$@<M4 params@>+=@{ (+macro)@}
+@$@<M4 ptype@>+=@{+macro 'Issue a warning ob regexp'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(macro@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(macro@,--warn-macro-sequence=$ODIN_macro@)@}
+
+@D@<word@>
+@{-W regexp
+--word-regexp=regexp@}
+
+Use regexp as an alternative syntax for macro names. This experimental option will not be present in all GNU m4 implementations (see Changeword).
+
+@$@<M4 params@>+=@{ (+word)@}
+@$@<M4 ptype@>+=@{+word 'Use regexp as an alternative syntax for macro names'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(word@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(word@,--word-regexp=$ODIN_word@)@}
+
+@D@<interactive@>
+@{-i
+--interactive
+-e@}
+
+Makes this invocation of m4 interactive. This means that all output will be unbuffered, and interrupts will be ignored. The spelling -e exists for compatibility with other m4 implementations, and issues a warning because it may be withdrawn in a future version of GNU m4.
+
+@$@<M4 params@>+=@{ (+interactive)@}
+@$@<M4 ptype@>+=@{+interactive 'Makes this invocation of m4 interactive'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(interactive@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(interactive@,-i@)@}
+
+
+@C@<Preprocessor features@>
+
+Several options allow m4 to behave more like a preprocessor. Macro definitions and deletions can be made on the command line, the search path can be altered, and the output file can track where the input came from. These features occur with the following options:
+
+@$@<M4 parms@>+=@{@+@}
+
+@D@<define@>
+@{-D name[=value]
+--define=name[=value]@}
+
+This enters name into the symbol table. If @{=value@} is missing, the value is taken to be the empty string. The value can be any string, and the macro can be defined to take arguments, just as if it was defined from within the input. This option may be given more than once; order with respect to file names is significant, and redefining the same name loses the previous value.
+
+Cannot use simple @{define@} here as it is conflicts with already existing define.
+Use @{m4_define@} instead?
+
+@$@<M4 params@>+=@{ (+define)@}
+@$@<M4 ptype@>+=@{+define 'Define macro'? => :cat;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(define@)@}
+@$@<M4 flags@>+=@{@<DG cat flag@>@(define@,-D@)@+@}
+@!$@<M4 flags@>+=@{@<DG flag@>@(define@,-D $$(cat ODIN_define)@)@}
+
+@D@<include@>
+@{-I directory
+--include=directory@}
+
+Make m4 search directory for included files that are not found in the current working directory. See Search Path, for more details. This option may be given more than once.
+Same as @{inc_ps@}!
+
+@$@<M4 params@>+=@{ (+include)@}
+@$@<M4 ptype@>+=@{+include 'Include directory'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(include@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(include@,-I $ODIN_include@)@}
+
+@D@<synclines@>
+@{-s
+--synclines@}
+
+Generate synchronization lines, for use by the C preprocessor or other similar tools. Order is significant with respect to file names. This option is useful, for example, when m4 is used as a front end to a compiler. Source file name and line number information is conveyed by directives of the form @{#line linenum "file"@}, which are inserted as needed into the middle of the output.
+Such directives mean that the following line originated or was expanded from the contents of input file file at line linenum. The @{"file"@} part is often omitted when the file name did not change from the previous directive.
+Synchronization directives are always given on complete lines by themselves. When a synchronization discrepancy occurs in the middle of an output line, the associated synchronization directive is delayed until the next newline that does not occur in the middle of a quoted string or comment.
+
+@$@<M4 params@>+=@{ (+synclines)@}
+@$@<M4 ptype@>+=@{+synclines 'Generate synchronization lines'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(synclines@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(synclines@,-s@)@}
+
+@D@<undefine@>
+@{-U name
+--undefine=name@}
+
+This deletes any predefined meaning name might have. Obviously, only predefined macros can be deleted in this way. This option may be given more than once; undefining a name that does not have a definition is silently ignored. Order is significant with respect to file names.
+
+@$@<M4 params@>+=@{ (+undefine)@}
+@$@<M4 ptype@>+=@{+undefine 'Deletes any predefined meaning name might have'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(undefine@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(undefine@,-U $ODIN_undefine@)@}
+
+
+@C@<Limits control@>
+
+There are some limits within m4 that can be tuned. For compatibility, m4 also accepts some options that control limits in other implementations, but which are automatically unbounded (limited only by your hardware and operating system constraints) in GNU m4.
+
+@$@<M4 parms@>+=@{@+@}
+
+@D@<gnu@>
+@{-g
+--gnu@}
+
+Enable all the extensions in this implementation. In this release of m4, this option is always on by default; it is currently only useful when overriding a prior use of --traditional. However, having GNU behavior as default makes it impossible to write a strictly POSIX-compliant client that avoids all incompatible GNU m4 extensions, since such a client would have to use the non-POSIX command-line option to force full POSIX behavior.
+Thus, a future version of m4 will be changed to implicitly use the option --traditional if the environment variable POSIXLY_CORRECT is set. Projects that intentionally use GNU extensions should consider using --gnu to state their intentions, so that the project will not mysteriously break if the user upgrades to a newer m4 and has POSIXLY_CORRECT set in their environment.
+
+@$@<M4 params@>+=@{ (+gnu)@}
+@$@<M4 ptype@>+=@{+gnu 'Enable all the extensions in this implementation'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(gnu@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(gnu@,-g@)@}
+
+@D@<traditional@>
+@{-G
+--traditional@}
+
+Suppress all the extensions made in this implementation, compared to the System V version. See Compatibility, for a list of these.
+
+@$@<M4 params@>+=@{ (+traditional)@}
+@$@<M4 ptype@>+=@{+traditional 'Suppress all the extensions made in this implementation'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(traditional@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(traditional@,-G@)@}
+
+@D@<hashsize@>
+@{-H num
+--hashsize=num@}
+
+Make the internal hash table for symbol lookup be num entries big. For better performance, the number should be prime, but this is not checked. The default is 509 entries. It should not be necessary to increase this value, unless you define an excessive number of macros.
+
+@$@<M4 params@>+=@{ (+hashsize)@}
+@$@<M4 ptype@>+=@{+hashsize 'Set the internal hash table size'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(hashsize@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(hashsize@,-H $ODIN_hashsize@)@}
+
+@D@<nesting@>
+@{-L num
+--nesting-limit=num@}
+
+Artificially limit the nesting of macro calls to num levels, stopping program execution if this limit is ever exceeded. When not specified, nesting defaults to unlimited on platforms that can detect stack overflow, and to 1024 levels otherwise. A value of zero means unlimited; but then heavily nested code could potentially cause a stack overflow.
+The precise effect of this option is more correctly associated with textual nesting than dynamic recursion. It has been useful when some complex m4 input was generated by mechanical means, and also in diagnosing recursive algorithms that do not scale well. Most users never need to change this option from its default.
+
+This option does not have the ability to break endless rescanning loops, since these do not necessarily consume much memory or stack space. Through clever usage of rescanning loops, one can request complex, time-consuming computations from m4 with useful results. Putting limitations in this area would break m4 power.
+There are many pathological cases: @{define(`a', `a')a@} is only the simplest example (but see Compatibility).
+Expecting GNU m4 to detect these would be a little like expecting a compiler system to detect and diagnose endless loops: it is a quite hard problem in general, if not undecidable!
+
+@$@<M4 params@>+=@{ (+nesting)@}
+@$@<M4 ptype@>+=@{+nesting 'Limit the nesting of macro calls to num levels'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(nesting@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(nesting@,-L $ODIN_nesting@)@}
+
+
+@C@<Frozen state@>
+
+GNU m4 comes with a feature of freezing internal state (see Frozen files). This can be used to speed up m4 execution when reusing a common initialization script.
+
+@$@<M4 parms@>+=@{@+@}
+
+@D@<freeze@>
+@{-F file
+--freeze-state=file@}
+
+Once execution is finished, write out the frozen state on the specified file. It is conventional, but not required, for file to end in @{.m4f@}.
+
+@$@<M4 params@>+=@{ (+freeze)@}
+@$@<M4 ptype@>+=@{+freeze 'Freeze state in file'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(freeze@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(freeze@,-F $ODIN_freeze@)@}
+
+TODO: implement it as intermediate file for Eli.
+
+@D@<reload@>
+@{-R file
+--reload-state=file@}
+
+Before execution starts, recover the internal state from the specified frozen file. The options -D, -U, and -t take effect after state is reloaded, but before the input files are read.
+
+@$@<M4 params@>+=@{ (+reload)@}
+@$@<M4 ptype@>+=@{+reload 'Recover state from file'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(reload@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(reload@,-R $ODIN_reload@)@}
+
+
+@C@<Debugging@>
+
+Finally, there are several options for aiding in debugging m4 scripts.
+
+@$@<M4 parms@>+=@{@+@}
+
+@D@<debug@>
+@{-d[flags]
+--debug[=flags]@}
+
+Set the debug-level according to the flags flags. The debug-level controls the format and amount of information presented by the debugging functions. See Debug Levels, for more details on the format and meaning of flags. If omitted, flags defaults to @{aeq@}.
+
+@$@<M4 params@>+=@{ (+debug)@}
+@$@<M4 ptype@>+=@{+debug 'Set the debug-level according to the flags'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(debug@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(debug@,--debug=$ODIN_debug@)@}
+
+@D@<debugfile@>
+@{--debugfile[=file]
+-o file
+--error-output=file@}
+
+Redirect dumpdef output, debug messages, and trace output to the named file. Warnings, error messages, and errprint output are still printed to standard error. If these options are not used, or if file is unspecified (only possible for --debugfile), debug output goes to standard error; if file is the empty string, debug output is discarded. See Debug Output, for more details. The option --debugfile may be given more than once, and order is significant with respect to file names.
+The spellings -o and --error-output are misleading and inconsistent with other GNU tools; for now they are silently accepted as synonyms of --debugfile and only recognized once, but in a future version of m4, using them will cause a warning to be issued.
+
+@$@<M4 params@>+=@{ (+debugfile)@}
+@$@<M4 ptype@>+=@{+debugfile 'Redirect dumpdef output, debug messages, and trace output to the named file'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(debugfile@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(debugfile@,-o $ODIN_debugfile@)@}
+
+@D@<arglength@>
+@{-l num
+--arglength=num@}
+
+Restrict the size of the output generated by macro tracing to num characters per trace line. If unspecified or zero, output is unlimited. See Debug Levels, for more details.
+
+@$@<M4 params@>+=@{ (+arglength)@}
+@$@<M4 ptype@>+=@{+arglength 'Restrict the size of the output generated by macro tracing'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(arglength@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(arglength@,-l $ODIN_arglength@)@}
+
+@D@<trace@>
+@{-t name
+--trace=name@}
+
+This enables tracing for the macro name, at any point where it is defined. name need not be defined when this option is given. This option may be given more than once, and order is significant with respect to file names. See Trace, for more details.
+
+@$@<M4 params@>+=@{ (+trace)@}
+@$@<M4 ptype@>+=@{+trace 'This enables tracing for the macro name'? => :first;@+@}
+@$@<M4 parms@>+=@{@<DG param@>@(trace@)@}
+@$@<M4 flags@>+=@{@<DG flag@>@(trace@,-t $ODIN_trace@)@}

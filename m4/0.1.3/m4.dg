@@ -1,0 +1,61 @@
+# m4.dg for package m4
+
+# Source Types
+
+*.m4 => :m4.in;
+#*,fw => :fw.m4;
+#*.fw => :fw.m4;
+#*.fw.m4 => :fw.m4;
+#m4,*,fw => :m4.fw;
+#fw.*.m4 => :m4.fw;
+
+# Input Object Types
+
+:m4.in  'm4 input file'         => :FILE;
+#:fw.m4  'm4 coded fw'           => :FILE;
+
+# Output Object Types
+
+:m4.out 'm4 output pipe'        => :PIPE;
+:m4.gnc 'm4 output generic'     => :GENERIC;
+:m4     'm4 output file'?       => :FILE;
+#:fw     'FunnelWeb output'?     => :FILE;
+
+# Parameter Types
+
++flags  'flags for the command, appended after environment flags'? => :ls;
++inc_sp 'name of a directory in an include search path'? => :ls;
++before 'name of scripts to run before input'? => :ls;
++after  'name of scripts to run after input'? => :ls;
++debugfile 'Redirect dumpdef output, debug messages, and trace output to the named file'? => :first;
+
+# Environment Variables
+
+$ODIN_M4        'name of the M4 processor' = 'm4';
+$ODIN_M4_FLAGS  'M4 flags' = '-P';
+
+# Tools
+
+EXEC (m4.sh) m4.out (:FILE) (:FILE :dir)@
+     (+flags) (+inc_sp)
+     (+define) (+debug) (+debugfile)
+     (+before) (+after)
+    => (:m4.out);
+
+EXEC (m4.sh) m4.gnc (:m4.in) (:m4.in :dir)@
+     (+flags) (+inc_sp)
+     (+define) (+debug) (+debugfile)
+     (+before) (+after)
+    => (:m4.gnc);
+
+EXEC (m4.sh) m4 (:m4.in) (:m4.in :dir)@
+     (+flags) (+inc_sp)
+     (+define) (+debug) (+debugfile)
+     (+before) (+after)
+    => (:m4);
+
+EXEC (m4.sh) fw (:m4.in) (:m4.in :dir)@
+     (+flags) (+inc_sp)
+     (+define) (+debug) (+debugfile)
+     (+before) (+after)
+    => (:fw);
