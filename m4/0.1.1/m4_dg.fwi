@@ -1,0 +1,210 @@
+@! This file is Copyright of the author, Viktor Bodrogi, 2016.
+@! Part of Fix suite.
+@p maximum_input_line_length = infinity
+@t title smalltitlefont centre "Eli package DG file"
+
+@B@<M4 Eli definitions@>
+
+
+@C@<Abstract@>
+
+This is (an instance) of a generic package definition.
+
+General usage: derive a @{.dg@} and @{.sh@} file for a package:
+
+-> @{dg.gnrc +instance=M4 +referto=m4 :inst@}
+
+Here @{instance@} is the name of the generated definitions (CamelCase),
+and @{referto@} is the name of the generated files and package (lowercase).
+(to complicate it...)
+
+So use as example for @{M4@}:
+
+-> @{dg.gnrc +instance=M4 +referto=m4 :inst :cat >m4_dg.fw@}
+
+Then @{m4_dg.fwi@} will be included in the main @{M4_dg.fw@} file.
+
+Odinfile entry:
+
+@{m4_dg.fw == dg.gnrc +instance=M4 +referto=m4 :inst :cat@}
+
+Then get an example @{m4_dg.fwi@} file:
+
+@{m4_dg.fw :fwGen/m4_dg.fwi>.@}
+
+
+@C@<Install@>
+
+Generally install a package with:
+
+-> @{dir +d_dest=(lib) :installpkg@}, lib should be in @{ODINPATH@}.
+
+@C
+@$@<TODO@>+=@{
+* How to use the generated m4.fw in our case?
+* Cleanup toolchain
+@}
+
+Note that a FunnelWeb generated directory cannot be directly installed,
+as installpkg tests for same named directory as the .dg file in it (so bad).
+
+@C@<Discussion@>
+
+@{
+export ODINPATH=/Users/Viktor/Eli
+eli<
+M4.fw:fwGen>.
+!ln -s M4.fw.fwGen m4
+chmod +x m4/m4.dg
+m4 +d_dest=(/Users/Viktor/Eli) :installpkg
+@}
+
+@C@<Derivation graph (.dg) file@>
+
+@D The structure of @{.dg@} file:
+@$@<M4.dg@>@{# m4.dg for package M4@+
+@<M4 Source Types@>
+@<M4 Input Object Types@>
+@<M4 Intermediate Object Types@>
+@<M4 Output Object Types@>
+@<M4 Parameter Types@>
+@<M4 Environment Variables@>
+@<M4 Tools@>
+@}
+
+Derivation types and other definitions:
+@$@<M4 Source Types@>+=@{# Source Types@+@}
+@$@<M4 Input Object Types@>+=@{# Input Object Types@+@}
+@$@<M4 Intermediate Object Types@>+=@{# Intermediate Object Types@+@}
+@$@<M4 Output Object Types@>+=@{# Output Object Types@+@}
+@$@<M4 Parameter Types@>+=@{# Parameter Types@+@}
+@$@<M4 Environment Variables@>+=@{# Environment Variables@+@}
+@$@<M4 Tools@>+=@{# Tools@+@}
+
+@D
+@$@<M4 Environment Variables@>+=@{
+
+@<ODIN_var@>@(M4@)        'name of the M4 processor' = '@<M4 command@>';
+@<ODIN_var@>@(M4_FLAGS@)  'M4 flags' = '';
+@}
+
+@D
+@$@<M4 Tools@>+=@{
+@<DG exec@>@(m4.sh@-
+@,@<M4 out@> (:FILE) (:FILE:dir)@@ @<M4 params@>@-
+@,@<M4 out@>@)
+@}
+
+@D
+@$@<DG exec@>@(@3@)@Z@M@{@-
+EXEC (@1) @2
+    => (:@3);
+@}
+
+
+@C@<Command shell script@>
+
+@D The shell script for each EXEC section:
+@$@<M4.sh@>@{#!/bin/sh
+@<M4 sh@>
+exit 0
+@}
+
+@E
+@$@<M4 sh@>@{@<DG script@>@(@-
+@!<M4 command@>@-
+@!,@<M4 out@>@-
+@<ODIN_var@>@(M4@)@-
+@,@<ODIN_var@>@(out@)@-
+@,@<M4 pre@>@-
+@,@<M4 post@>@)@}
+
+@E
+@$@<DG script@>@(@4@)@{
+# sh script for command @1, output @2
+# standard params
+@<DG std params@>
+# other params
+@3
+# execute
+@<DG std exec@>@(@1@,@2@)
+# post process
+@4@}
+
+@E
+@$@<DG std params@>@{@-
+@!ODIN_out=$1;shift; ODIN_file=$1;shift; ODIN_dir=$1;shift;
+@<DG param@>@(out@) @<DG param@>@(file@) @<DG param@>@(dir@)
+file=`basename @<ODIN_var@>@(file@)`
+@!flags=""
+flags="$flags @<ODIN_var@>@(M4_FLAGS@)"
+@}
+
+@E
+@$@<DG std exec@>@(@2@)@{@-
+ln -s @<ODIN_var@>@(file@) $file
+
+if [ "$ODINVERBOSE" != "" ] ; then
+   echo ${ODINRBSHOST}@1 $flags `basename $file`; fi
+
+@1 $flags $file >@2 2>WARNINGS \
+ || { status=$?; mv WARNINGS ERRORS; echo "@1 failed with $status" >>ERRORS; }
+@}
+
+
+@D@<Definition helper macros@>
+
+@E
+@$@<DG param@>@(@1@)@Z@M@{@<ODIN_@>@(@1@)=$1;shift;@}
+@$@<DG param type@>@(@3@)@Z@M@{@<DG par?@>@(@1@,@2@,@3@)@}
+@!$@<DG param@>@(@1@)@Z@M@{ODIN_@1=$1;shift;@}
+@!$@<DG param type@>@(@3@)@Z@M@{+@1 '@2'? => :@3;@}
+
+@$@<ODIN_@>@(@1@)@Z@M@{ODIN_@1@}
+@$@<ODIN_var@>@(@1@)@Z@M@{$@<ODIN_@>@(@1@)@}
+
+@E
+@$@<DG flag@>@(@2@)@Z@M@{@<DG if flag@>@(@1@,flags="$flags @2"@)@}
+@$@<DG flag cat@>@(@3@)@Z@M@{@<DG if flag@>@(@1@,flags="$flags @2 $(cat @3)"@)@}
+@$@<DG if flag@>@(@2@)@Z@M@{if [ "@<ODIN_var@>@(@1@)" != "" ] ; then @2; fi@+@}
+@!if [ "$ODIN_@1" != "" ] ; then flags="$flags @2"; fi@+@}
+@!if [ "$ODIN_@" != "" ] ; then flags="$flags @2 $(cat @3)"; fi@+@}
+
+@E
+Defining any derivation types:
+@$@<DG def-@>@(@3@)@Z@M@{@1 '@2' => @3;@}
+@$@<DG def?@>@(@3@)@Z@M@{@1 '@2'? => @3;@}
+@$@<DG obj-@>@(@3@)@Z@M@{@<DG def-@>@(:@1@,@2@,:@3@)@}
+@$@<DG obj?@>@(@3@)@Z@M@{@<DG def?@>@(:@1@,@2@,:@3@)@}
+@$@<DG par-@>@(@3@)@Z@M@{@<DG def-@>@(+@1@,@2@,:@3@)@}
+@$@<DG par?@>@(@3@)@Z@M@{@<DG def?@>@(+@1@,@2@,:@3@)@}
+
+@C@<Files@>
+@D
+@N@<m4.dg@>@{@<M4.dg@>@}
+@D
+@N@<m4.sh@>@{@<M4.sh@>@}
+
+@C@<Imported macros@>
+
+Put these into your package definition:
+@!IMPORT: @{M4 command@}, @{M4 out@}
+@$@<M4 command@>@M@{m4@}
+@$@<M4 out@>@M@{m4@}
+@!IMPORT: @<M4 params@>, @{M4 pre@}, @{M4 post@}
+@$@<M4 params@>@M+=@{@}
+@$@<M4 pre@>+=@{@}
+@$@<M4 post@>+=@{@}
+
+Example @{m4_dg.fwi@} file:
+@=~
+~$~<m4_dg.fwi~>~Z~{
+@! GENERATED, DO NOT USE, ONLY EXAMPLE! CUSTOMIZE!
+@$@<M4 command@>@M@{m4@}
+@$@<M4 out@>@M@{m4@}
+@$@<M4 params@>+=@{@}
+@$@<M4 pre@>+=@{@}
+@$@<M4 post@>+=@{@}
+~}
+
+~! m4_dg.fwi

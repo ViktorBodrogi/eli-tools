@@ -1,0 +1,144 @@
+@! This file is Copyright of the author, Viktor Bodrogi, 2016.
+@t title smalltitlefont centre "M4 processing plans"
+
+@B@<M4 plans@>
+
+Using @{M4@} macros to generate @{.fw@}, @{.fwi@} and other files.
+Template and macro processing.
+
+
+@C@<Basics processing@>
+
+@D@<Replace@>
+Replace @{$Foo@} with @{Hello bar@} in: @{Here we are, $Foo!@}.
+
+@D@<Include variables@>
+Use @{$PROJ@}, @{$LIB@}, @{$HOME@} and friends to include FW and other files
+from defined pathes.
+@{@@i $PROJ/Lib/Example.fwi@}
+
+@D@<Include path@>
+The special include path is @{$/@}.
+This loads from first found in path @{$PROJ@}, @{$LIB@}, @{$HOME@}:
+@{@@i $/Example.fwi@}
+
+@D@<M4 definitions@>
+
+@E@<Variables and functions@>
+
+Variable prefix is @{$@}.
+Builtion prefix is @{__@}.
+Function prefix is @{$$@}.
+
+@E@<Quotings@>
+
+Quotings for function args are
+ @{[[@} and @{]]@},
+ or @{<<@} and @{>>@}.
+Also FW constructs like
+ @{@@{@} and @{@@}@},
+ @{@@<@} and @{@@>@}
+ @{@@i@} and @{@@=~@}
+ can be recognized.
+
+@D@<Variable@>
+Set variable: @{$Foo:=[[Hello bar]]@},
+use as: @{Here we are, $Foo!@}.
+This creates the M4 definiton
+@{$VAR$Foo@}
+
+@D@<Function@>
+Set function: @{$$Fun:=[[Hello $1!]]@},
+use as: @{$$Fun:=[[John]]!@}.
+This creates the M4 definiton
+@{$FUN$Fun@}
+
+@C@<Advaned concepts@>
+
+@D@<Namespaces@>
+Packages or classes.
+Use @{::@} separator to mark packages,
+@{:@} to mark classes,
+@{.@} to mark methods.
+
+@D@<Classes@>
+Classes defined with:
+@{__CLASS[[Person]]@}.
+This creates the M4 definiton
+@{$CLASS$Person@}
+
+@D@<Methods@>
+Methods defined with:
+@{__METHOD[[Person:Name]]@}.
+This creates the M4 definiton
+@{$METHOD$Person:Name@}
+
+@D@<Packages@>
+Packages can use libraries and each others.
+To prevent accidents all used packages can be saved in one versioned file.
+
+Packages defined with:
+@{__PACKAGE[[Manage]]@} or
+@{__ROOT[[School]]@}.
+This creates the M4 definiton
+@{$PACKAGE$Manage@} or
+@{$ROOT$School@}.
+
+@D@<Libraries@>
+User and system packages are store in predefined locations.
+Project specific packages are in the working directory,
+together with a versioned copy of all used library packages.
+
+Libraries defined with:
+@{__LIBRARY[[Person]]@} or
+@{__PROJECT[[SchoolManagement]]@}.
+
+
+@C@<More advanced concepts@>
+
+@D@<Features@>
+
+Optional parts of a code or project, which brings in or modifies
+the behaviour or content of the package.
+These can be optional functionalities or different implementations.
+
+@D@<Modules@>
+
+Modules are compilation units with visibility options.
+
+@C@<FunnelWeb and Eli@>
+
+@D@<Core usage@>
+
+Have an @{Example.fw@} file, with some @{M4@} macros.
+Evaluate the resulting file as @{fwHtml@} and @{fwGen@}.
+
+@E@<Example.fw.m4 with !m4@>
+
+@E@<!m4@>
+@{Example.fw.m4 !m4>@}
+@E@<!m4:fwHtml@>
+@{Example.fw.m4 !m4:fwHtml@}
+@E@<!m4:fwGen@>
+@{Example.fw.m4 !m4:fwGen@}
+
+@D@<With M4 extensions@>
+
+@E@<Example.fw.m4 with :m4@>
+
+@E@<!m4@>
+@{Example.fw.m4 :m4>@}
+@E@<!m4:fwHtml@>
+@{Example.fw.m4 :m4:fwHtml@}
+@E@<!m4:fwGen@>
+@{Example.fw.m4 :m4:fwGen@}
+
+
+@C@<See also@>
+
+M4 docs and libs.
+Sed.
+
+@C@<Future@>
+
+Consider using @{autoconf@} and @{autogen@}.
