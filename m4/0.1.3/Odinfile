@@ -1,0 +1,58 @@
+
+%main.dir   == ../%main.dir
+%pkg.dir    == ../%pkg.dir
+
+#############################################################################
+
+%all !== <<
+    src/%all            # build all m4 files
+    m4.html             # update doc
+
+%install !== <<
+    %all
+    %installpkg         # installing package
+
+%re !== <<
+    %clean
+    %all
+
+#############################################################################
+
+%installpkg !== <<
+    . +d_dest=(/Users/Viktor/Eli) :installpkg
+
+#############################################################################
+
+%m4  == src/%m4
+
+%m4.files !== <<EOF     # update files
+    version             # update to current version
+    m4.html
+    fw.m4
+    m4.dg
+    m4.sh
+    !chmod +x m4.sh
+EOF
+
+m4.html == src/%m4.html
+#m4.dg   == %m4/m4.dg
+#m4.sh   == %m4/m4.sh
+#fw.m4   == %m4/fw.m4
+#version == %m4/version
+
+#m4.html == %m4.html
+# FIXME: always appends style, find better way
+%fw.css == ../../fw.css
+%m4.xhtml == <<
+    src/%m4.html        # update doc
+    %s1
+    %fw.css
+    %s2
+
+%s1 == '<style>'
+%s2 == '</style>'
+
+#    !chmod +w m4.html
+#    !echo '<style>' >> m4.html ; cat ../../fw.css >> m4.html ; echo '</style>' >> m4.html
+
+#

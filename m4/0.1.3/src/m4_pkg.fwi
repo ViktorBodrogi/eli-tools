@@ -1,0 +1,83 @@
+@! This file is Copyright of the author, Viktor Bodrogi, 2016.
+@p maximum_input_line_length = infinity
+@t title smalltitlefont centre "M4 Eli package"
+
+@! NEEDS m4_dg.fwi
+
+@B@<M4 Eli package@>
+
+@C
+@$@<M4 DG version@>@{0.1.2@}
+
+@C
+@$@<M4 Source Types@>+=@{
+*.m4    => :m4.in;
+*,fw    => :m4.fw;
+*.fw.m4 => :m4.fw;
+@}
+@$@<M4 pre@>+=@{case $file in *.m4);; *) file=$file.m4;; esac@+@}
+
+@C
+@$@<M4 Input Object Types@>+=@{
+:m4.in  'm4 input file'         => :FILE;
+:m4.fw  'm4 coded fw'           => :FILE;
+@}
+@!C
+@!$@<Intermediate Object Types@>+=@{
+@!:m4_out 'm4 output file'? => :FILE;
+@!}
+@C
+@$@<M4 Output Object Types@>+=@{
+:m4.out 'm4 pipe output'        => :PIPE;
+:m4.gnc 'm4 generic output'     => :GENERIC;
+:fw     'FunnelWeb output'?     => :FILE;
+@!:c      'C source code'?        => :FILE;
+@!:h      'C header file'?        => :FILE;
+@}
+
+@C
+@$@<M4 Parameter Types@>+=@{
+@!+define 'macro definition'? => :cat;
+@!+home 'home directory for relative pathnames'? => :first;
++inc_sp 'name of a directory in an include search path'? => :ls;
++before 'name of script to run before input'? => :first;
++after 'name of script to run after input'? => :first;
+@<M4 ptype@>@}
+
+@D
+@$@<M4 flags@>+=@{flags="$flags -I $ODIN_dir"@+@}
+
+@D@<inc_sp@>
+@$@<M4 core params@>+=@{ (+inc_sp)@}
+@$@<M4 parms@>+=@{ODIN_inc_sp=$1;shift;@}
+@$@<M4 flags@>+=@{@<DG cat flag@>@(inc_sp@,-I@)@+@}
+
+@D@<before and after@>
+@$@<M4 core params@>+=@{ (+before)@}
+@$@<M4 parms@>+=@{ODIN_before=$1;shift;@}
+@$@<M4 core params@>+=@{ (+after)@}
+@$@<M4 parms@>+=@{ODIN_after=$1;shift;@+@}
+@$@<M4 before exec hook@>+=@{file="$ODIN_before $file $ODIN_after"@+@}
+
+@!$@<M4 flags@>+=@{@<DG flag@>@(before@,$ODIN_before@)@+@}
+
+@D
+@$@<M4 Tools@>+=@{
+@<M4 EXEC@>@(m4.out@,FILE@)
+@<M4 EXEC@>@(m4.gnc@,m4.in@)
+@<M4 EXEC@>@(fw@,m4.in@)
+@}
+
+@E
+@$@<M4 EXEC@>@(@2@)@M@{EXEC (m4.sh) @1 (:@2) (:@2 :dir)@@
+    @<M4 core params@>
+    @<M4 params@>
+@!    NEEDS (:@2 +home=(:@2 :dir) :lookup=:all_c_inc)
+    => (:@1);
+@}
+
+@D
+@$@<M4 pre@>+=@{
+@<M4 parms@>
+@+# flags
+@<M4 flags@>@}

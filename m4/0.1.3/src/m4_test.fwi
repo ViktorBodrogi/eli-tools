@@ -1,0 +1,56 @@
+@! This file is Copyright of the author, Viktor Bodrogi, 2016.
+@p maximum_input_line_length = infinity
+@t title titlefont centre "M4 package tests"
+
+@B@<M4 Test@>
+
+View test @{input,fw@} via derivation:
+
+-> @{input,fw :m4 :fwGen@}
+
+Without the toolkit package, also can be run:
+
+-> @{input,fw +cmd=m4 +args="-P fw.m4" :fwGen@}
+
+To compare with the expected output:
+
+-> @{input +prog=(test_prog) :stdout +other=(output.fw) :diff@}
+@!-> @{input +prog=(test_prog) :stdout +other=(output.fw) :diff@}
+
+A trivial test example input:
+@=~
+~N@<input@>~{~-
+___A(Test input)
+___B(Section)
+___C(Chapter)
+___D(Topic)
+___E(Details)
+___B(Usage)
+_FW_Define_(Name,Test)
+_FW_Define_(Project,_FWN_(Name) project)
+_FW_Define_(Project title,Test project, with commas in title)
+_FW_DEF_(Hello)_1M_@{Hello @1!@}
+__File__(Hello.txt)@{
+_FWN_(Project title)
+_FWM_(Hello)(_FWN_(Project title))
+@}~}
+
+Expected output:
+@=~
+~N@<input,fw@>~{~-
+@A@<Test input@>
+@B@<Section@>
+@C@<Chapter@>
+@D@<Topic@>
+@E@<Details@>
+___B(Usage)
+_FW_Define_(Name,Test)
+_FW_Define_(Project,_FWN_(Name) project)
+_FW_Define_(Project title,Test project, with commas in title)
+_FW_DEF_(Hello)_1M_@{Hello @1!@}
+__File__(Hello.txt)@{
+_FWN_(Project title)
+_FWM_(Hello)(_FWN_(Project title))
+@}~}
+
+~=@
